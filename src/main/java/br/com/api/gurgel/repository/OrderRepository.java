@@ -10,7 +10,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String> {
 
-    @Query("SELECT new br.com.api.gurgel.model.dto.Response() " +
-            "FROM Order o, Customer c, Delivery d WHERE c.clientCode = o.customer AND d.")
+    @Query( "SELECT new br.com.api.gurgel.model.dto.Response() " +
+            "FROM Delivery d JOIN d.order o JOIN o.customer c AND " +
+            "(" +
+                "SELECT subO.orderCode " +
+                "FROM Order subO " +
+                "WHERE subO.customer = o.customer " +
+                "ORDER BY o.orderDate DESC " +
+                "LIMIT 0, 3" +
+            ")" +
+            "WHERE c.clientDocument = :document"
+        )
     Response retrieveOrderByCustomerDocument(@Param("document") String document);
 }
